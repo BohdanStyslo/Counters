@@ -1,0 +1,64 @@
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Проста форма</title>
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+ <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/skeleton/2.0.4/skeleton.min.css"> 
+</head>
+
+<body>
+
+<div class="container">
+  <h2>Монітор</h2>
+  <form>
+    <div id="MONITOR"></div>
+    <label for="accountNumber">Номер счета:</label>
+    <input class="u-full-width" type="text" id="accountNumber" name="accountNumber" required>
+
+    <label for="meterReading">Показания счетчика:</label>
+    <input class="u-full-width" type="number" id="meterReading" name="meterReading" required>
+    
+   <button id="MyBTN" class="button-primary">Отправить!</button>
+  </form>
+</div>
+
+
+
+  <script>
+    let tg = window.Telegram.WebApp; //получаем объект webapp телеграма 
+    tg.expand(); //расширяем на все окно  
+
+   let txtdata = tg.initData;
+
+    document.getElementById('MONITOR').innerText = txtdata;
+ 
+    MyBTN.addEventListener('click', function () { //вешаем событие на нажатие html-кнопки
+    let Acc = document.getElementById("accountNumber").value;
+    let Mtr = document.getElementById("meterReading").value;
+
+        let data = {
+      рахунок: Acc,
+      покази: Mtr
+    }
+    
+    data = JSON.stringify(data);
+    tg.sendData(data);
+
+    });
+
+
+    Telegram.WebApp.onEvent('mainButtonClicked', function () {
+      tg.sendData("some string that we need to send");
+      tg.MainButton.setParams({ "color": "#FFFF00" }); //меняем цвет
+      //при клике на основную кнопку отправляем данные в строковом виде
+      tg.close();
+    });
+
+  </script>
+</body>
+
+</html>
