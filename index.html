@@ -1,64 +1,188 @@
-
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Проста форма</title>
-  <script src="https://telegram.org/js/telegram-web-app.js"></script>
- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/skeleton/2.0.4/skeleton.min.css"> 
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Показники лічильника води</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Arial', sans-serif;
+        }
+
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background: linear-gradient(135deg, #86c8bc, #6cace4);
+            color: #333;
+        }
+
+        .form-container {
+            background: #fff;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 400px;
+        }
+
+        .form-title {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        label {
+            display: block;
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .input-field {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: all 0.3s;
+        }
+
+        .input-field:focus {
+            outline: none;
+            border-color: #6cace4;
+            box-shadow: 0 0 8px rgba(108, 172, 228, 0.4);
+        }
+
+        .btn {
+            width: 100%;
+            padding: 0.75rem;
+            background: #6cace4;
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .btn:hover {
+            background: #06038d;
+        }
+
+        .success-message {
+            display: none;
+            text-align: center;
+            background: #86c8bc;
+            color: #fff;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-top: 1rem;
+        }
+    </style>
 </head>
-
 <body>
+    <div class="form-container">
+        <div class="form-title">Передача показників лічильника</div>
+        <form id="water-meter-form">
+            <div class="form-group">
+                <label for="account">Рахунок</label>
+                <input list="account-list" id="account" name="account" class="input-field" placeholder="Введіть або оберіть рахунок" required>
+                <datalist id="account-list">
+                    <!-- Дані будуть завантажені сюди -->
+                </datalist>
+            </div>
+            <div class="form-group">
+                <label for="meter-value">Показник</label>
+                <input type="number" id="meter-value" name="meter-value" class="input-field" placeholder="Введіть показник" min="0" required>
+            </div>
+            <button type="submit" class="btn">Надіслати</button>
+        </form>
+        <div id="success-message" class="success-message">Дані успішно надіслані!</div>
+    </div>
 
-<div class="container">
-  <h2>Монітор</h2>
-  <form>
-    <div id="MONITOR"></div>
-    <label for="accountNumber">Номер счета:</label>
-    <input class="u-full-width" type="text" id="accountNumber" name="accountNumber" required>
+    <script>
+        const apiUrl = 'https://script.google.com/macros/s/AKfycbyEfp3Y_c5-jRfvHqNB9A4pETvmBx7eI-EZ09N3hvnjan3x1LzoZtSKU2UVdBrn70MXug/exec';
+        let userId = null;
 
-    <label for="meterReading">Показания счетчика:</label>
-    <input class="u-full-width" type="number" id="meterReading" name="meterReading" required>
-    
-   <button id="MyBTN" class="button-primary">Отправить!</button>
-  </form>
-</div>
+        // Отримання userId через Telegram WebApp
+        const tg = window.Telegram.WebApp;
+        if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
+            userId = tg.initDataUnsafe.user.id;
+        } else {
+            alert('Не вдалося отримати ідентифікатор користувача з Telegram.');
+        }
 
+        // Завантаження рахунків з API
+        async function loadAccounts() {
+            try {
+                const response = await axios.get(`${apiUrl}?user=${userId}`);
+                const accounts = response.data;
 
+                const dataList = document.getElementById('account-list');
 
-  <script>
-    let tg = window.Telegram.WebApp; //получаем объект webapp телеграма 
-    tg.expand(); //расширяем на все окно  
+                // Очищення попередніх значень
+                dataList.innerHTML = '';
 
-   let txtdata = tg.initData;
+                // Додавання отриманих рахунків до списку
+                accounts.forEach(account => {
+                    const option = document.createElement('option');
+                    option.value = account;
+                    dataList.appendChild(option);
+                });
+            } catch (error) {
+                console.error('Помилка завантаження рахунків:', error);
+            }
+        }
 
-    document.getElementById('MONITOR').innerText = txtdata;
- 
-    MyBTN.addEventListener('click', function () { //вешаем событие на нажатие html-кнопки
-    let Acc = document.getElementById("accountNumber").value;
-    let Mtr = document.getElementById("meterReading").value;
+        // Відправка даних на аркуш "Показники"
+        async function sendData(account, meterValue) {
+            try {
+                const response = await axios.post(apiUrl, {
+                    user: userId,
+                    account,
+                    meterValue
+                });
 
-        let data = {
-      рахунок: Acc,
-      покази: Mtr
-    }
-    
-    data = JSON.stringify(data);
-    tg.sendData(data);
+                if (response.status === 200) {
+                    document.getElementById('success-message').style.display = 'block';
+                } else {
+                    alert('Сталася помилка при надсиланні даних. Спробуйте ще раз.');
+                }
+            } catch (error) {
+                console.error('Помилка надсилання даних:', error);
+                alert('Сталася помилка при надсиланні даних. Спробуйте ще раз.');
+            }
+        }
 
-    });
+        // Виклик функції після завантаження сторінки
+        document.addEventListener('DOMContentLoaded', () => {
+            if (userId) {
+                loadAccounts();
+            }
+        });
 
+        // Обробка форми
+        document.getElementById('water-meter-form').addEventListener('submit', function(event) {
+            event.preventDefault();
 
-    Telegram.WebApp.onEvent('mainButtonClicked', function () {
-      tg.sendData("some string that we need to send");
-      tg.MainButton.setParams({ "color": "#FFFF00" }); //меняем цвет
-      //при клике на основную кнопку отправляем данные в строковом виде
-      tg.close();
-    });
+            const account = document.getElementById('account').value;
+            const meterValue = document.getElementById('meter-value').value;
 
-  </script>
+            sendData(account, meterValue);
+        });
+    </script>
 </body>
-
 </html>
