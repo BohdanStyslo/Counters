@@ -99,7 +99,7 @@
         <form id="water-meter-form">
             <div class="form-group">
                 <label for="account">Рахунок</label>
-                <input list="account-list" id="account" name="account" class="input-field" placeholder="Введіть або оберіть рахунок" required>
+                <input list="account-list" id="account" name="account" class="input-field" placeholder="Введіть або оберіть рахунок зі списку" required>
                 <datalist id="account-list">
                     <!-- Дані будуть завантажені сюди -->
                 </datalist>
@@ -143,7 +143,7 @@
                     dataList.appendChild(option);
                 });
             } catch (error) {
-                console.error('Помилка завантаження рахунків:', error);
+               alert('Помилка завантаження рахунків:');
             }
         }
 
