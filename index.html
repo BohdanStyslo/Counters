@@ -91,15 +91,23 @@
             border-radius: 8px;
             margin-top: 1rem;
         }
+
+        .user-id {
+            text-align: center;
+            margin-bottom: 1rem;
+            font-size: 1rem;
+            color: #555;
+        }
     </style>
 </head>
 <body>
     <div class="form-container">
         <div class="form-title">Передача показників лічильника</div>
+        <p class="user-id" id="user-id-display">Користувач: ID не визначено</p>
         <form id="water-meter-form">
             <div class="form-group">
                 <label for="account">Рахунок</label>
-                <input list="account-list" id="account" name="account" class="input-field" placeholder="Введіть або оберіть рахунок зі списку" required>
+                <input list="account-list" id="account" name="account" class="input-field" placeholder="Введіть або оберіть рахунок" required>
                 <datalist id="account-list">
                     <!-- Дані будуть завантажені сюди -->
                 </datalist>
@@ -121,6 +129,7 @@
         const tg = window.Telegram.WebApp;
         if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
             userId = tg.initDataUnsafe.user.id;
+            document.getElementById('user-id-display').textContent = `Користувач: ID ${userId}`;
         } else {
             alert('Не вдалося отримати ідентифікатор користувача з Telegram.');
         }
@@ -143,7 +152,7 @@
                     dataList.appendChild(option);
                 });
             } catch (error) {
-               alert('Помилка завантаження рахунків:');
+                console.error('Помилка завантаження рахунків:', error);
             }
         }
 
